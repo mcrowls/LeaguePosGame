@@ -31,6 +31,7 @@ class Season:
             points = awayPoints + homePoints
             unOrderedTable.append({'Team': team, 'Points': points, 'GD': gD, 'Scored': goalsScored})
         orderedTable = sorted(unOrderedTable, key=lambda i: (i['Points'], i['GD'], i['Scored']))
+        orderedTable.append({'Team': self.year})
         self.seasonTable = list(reversed([team['Team'] for team in orderedTable]))
         return self.seasonTable
 
@@ -55,10 +56,18 @@ for league in leagues:
         season = Season(year, league)
         season.readInCSV()
         teams = season.getAllTeams()
+        if league != 'League Two':
+            if year == '1993-94':
+                headings = [i for i in range(len(teams)+1)]
+                headings[0] = 'Year'
+        else:
+            if year == '2021-22':
+                headings = [i for i in range(len(teams)+1)]
+                headings[0] = 'Year'
         for team in teams:
             if team not in allTeams:
                 allTeams.append(team)
         table = season.leagueTable(teams)
         arr.append(table)
-
-print(allTeams)
+    df = pd.DataFrame(arr, columns=headings)
+    df.to_csv(league + 'Standings.csv')
